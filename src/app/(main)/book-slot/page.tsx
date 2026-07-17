@@ -257,10 +257,20 @@ function BookSlotInner() {
   }, [turf, step]);
 
   const isSlotBooked = (timeStr: string) => {
-    if (!availability?.bookedSlots) return false;
-    return availability.bookedSlots.some(slot => {
-      return toMinutes(timeStr) >= toMinutes(slot.startTime) && toMinutes(timeStr) < toMinutes(slot.endTime);
-    });
+    return Boolean(getBookingForSlot(timeStr));
+  };
+
+  const getBookingForSlot = (timeStr: string) => {
+    if (!availability?.bookedSlots) return null;
+    const slotMinutes = toMinutes(timeStr);
+    return availability.bookedSlots.find((slot) => {
+      return slotMinutes >= toMinutes(slot.startTime) && slotMinutes < toMinutes(slot.endTime);
+    }) ?? null;
+  };
+
+  const isBookingStart = (timeStr: string) => {
+    const booking = getBookingForSlot(timeStr);
+    return booking ? toMinutes(timeStr) === toMinutes(booking.startTime) : false;
   };
 
   const isSlotClosedByTime = (timeStr: string) => {
@@ -280,7 +290,7 @@ function BookSlotInner() {
   };
 
   const shouldShowSlot = (timeStr: string) => {
-    if (isSlotBooked(timeStr)) return true;
+    if (isSlotBooked(timeStr)) return isBookingStart(timeStr);
     if (selectedDate === "") return true;
     return !isSlotClosedByTime(timeStr);
   };
@@ -462,7 +472,10 @@ function BookSlotInner() {
         }
       };
 
-      const rzp = new (window as Window & { Razorpay: new (options: typeof options) => { open: () => void } }).Razorpay(options);
+      const Razorpay = (window as unknown as {
+        Razorpay: new (options: Record<string, unknown>) => { open: () => void };
+      }).Razorpay;
+      const rzp = new Razorpay(options);
       rzp.open();
     } catch (caughtError: unknown) {
       setError(caughtError instanceof Error ? caughtError.message : "An error occurred while creating booking.");
@@ -585,6 +598,10 @@ function BookSlotInner() {
                       const isBooked = slotState === "BOOKED";
                       const isClosed = slotState === "CLOSED";
                       const isSelected = selectedStartTime === time;
+                      const booking = isBooked ? getBookingForSlot(time) : null;
+                      const displayTime = booking
+                        ? `${booking.startTime} - ${booking.endTime}`
+                        : time;
                       return (
                         <button
                           key={time}
@@ -600,7 +617,9 @@ function BookSlotInner() {
                               : "bg-white border-zinc-200 text-zinc-800 font-bold hover:border-zinc-300"
                           }`}
                         >
-                          <span className="block leading-none">{time}</span>
+                          <span className={`block leading-none ${booking ? "line-through decoration-red-400/70" : ""}`}>
+                            {displayTime}
+                          </span>
                           <span className={`mt-1 block text-[10px] font-black uppercase tracking-wider ${
                             isBooked
                               ? "text-red-500"
