@@ -1,0 +1,7 @@
+"use client";
+import Link from "next/link";
+import { useEffect, useState } from "react";
+import { profileService } from "@/services";
+import type { UserProfile } from "@/types/domain";
+import { Empty, Spinner } from "@/components/ui";
+export default function ProfilePage() { const [profile, setProfile] = useState<UserProfile | null>(null); useEffect(() => { profileService.get().then(r => setProfile(r.data)).catch(() => setProfile(null)); }, []); if (!profile) return <div className="grid min-h-[60vh] place-items-center"><Spinner /></div>; return <div className="mx-auto max-w-4xl p-5 lg:p-9"><p className="text-sm font-bold uppercase tracking-widest text-lime-700">Account</p><h1 className="mt-1 text-4xl font-black">Profile</h1><section className="mt-7 rounded-3xl bg-white p-6 shadow-sm"><div className="flex items-center gap-4"><div className="grid h-16 w-16 place-items-center rounded-full bg-lime-200 text-2xl font-black">{profile.name?.slice(0, 1) ?? "T"}</div><div><h2 className="text-xl font-black">{profile.name}</h2><p className="text-sm text-zinc-500">@{profile.username} · {profile.email}</p></div></div><div className="mt-7 grid gap-3 sm:grid-cols-2">{[["Edit profile", "/profile/edit"], ["Settings", "/settings"], ["My bookings", "/bookings"], ["Support", "/support"]].map(([label, href]) => <Link key={href} href={href} className="rounded-xl border border-zinc-200 px-4 py-4 font-bold transition hover:bg-zinc-50">{label}<span className="float-right">→</span></Link>)}</div></section></div>; }

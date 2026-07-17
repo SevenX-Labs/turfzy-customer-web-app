@@ -1,0 +1,4 @@
+- [ ] Update src/lib/api.ts to support customer API-key auth for customer-facing endpoints
+- [ ] Ensure Bearer token is NOT sent for those endpoints
+- [ ] Keep existing Bearer token flow for non-customer endpoints
+- [ ] Verify build/typecheck (npm run build / npm run lint)

@@ -1,0 +1,23 @@
+@import "tailwindcss";
+
+:root { --ink: #000000; --muted: #525252; --green: #89e900; --paper: #ffffff; }
+* { box-sizing: border-box; }
+html { background: var(--paper); }
+body { margin: 0; min-width: 320px; background: var(--paper); color: var(--ink); font-family: Arial, Helvetica, sans-serif; }
+button, input, select, textarea { font: inherit; }
+button { cursor: pointer; }
+a { color: inherit; text-decoration: none; }
+@keyframes rise { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+.animate-rise { animation: rise .35s ease-out both; }
+
+/* Turfzy palette: green actions, white surfaces, and black text. */
+.bg-\[\#111714\] { background-color: #ffffff !important; }
+.bg-lime-400 { background-color: var(--green) !important; }
+.bg-zinc-950 { background-color: var(--green) !important; }
+.text-white { color: #000000 !important; }
+.hover\:bg-lime-300:hover { background-color: #9df127 !important; }
+.text-lime-400, .text-lime-500, .text-lime-700, .text-lime-800 { color: #000000 !important; }
+.focus\:border-lime-500:focus { border-color: var(--green) !important; }
+.focus\:ring-lime-100:focus { --tw-ring-color: #e6ffc2 !important; }
+.border-t-lime-500 { border-top-color: var(--green) !important; }
+.accent-lime-500 { accent-color: var(--green) !important; }
