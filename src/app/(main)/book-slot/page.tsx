@@ -9,9 +9,9 @@ import {
   ArrowLeft,
   Calendar,
   Clock,
-  CreditCard,
+  Smartphone,
   Banknote,
-  Wallet,
+  IndianRupee,
   Info,
   MapPin,
   ArrowRight,
@@ -689,7 +689,7 @@ function BookSlotInner() {
           <div>
             <p className="text-xs font-bold uppercase tracking-wider text-zinc-400 mb-3">PAYMENT METHOD</p>
             <div className="space-y-3">
-              {/* Option 1: Full Online Payment */}
+              {/* Option 1: Full Online Payment (UPI) */}
               {allowedPreferences.includes("FULL_ONLINE") && (
                 <div
                   onClick={() => setPaymentMethod("FULL_ONLINE")}
@@ -701,7 +701,7 @@ function BookSlotInner() {
                 >
                   <div className="flex items-center gap-4">
                     <div className={`p-3 rounded-2xl ${paymentMethod === "FULL_ONLINE" ? "bg-lime-100 text-lime-700" : "bg-zinc-100 text-zinc-400"}`}>
-                      <CreditCard className="h-6 w-6" />
+                      <Smartphone className="h-6 w-6" />
                     </div>
                     <div>
                       <p className="font-black text-zinc-800 text-sm">Full Online Payment</p>
@@ -761,7 +761,7 @@ function BookSlotInner() {
                 >
                   <div className="flex items-center gap-4">
                     <div className={`p-3 rounded-2xl ${paymentMethod === "FULL_CASH" ? "bg-lime-100 text-lime-700" : "bg-zinc-100 text-zinc-400"}`}>
-                      <Wallet className="h-6 w-6" />
+                      <IndianRupee className="h-6 w-6" />
                     </div>
                     <div>
                       <p className="font-black text-zinc-800 text-sm">Pay at Turf</p>
