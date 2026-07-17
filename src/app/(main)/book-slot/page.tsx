@@ -290,9 +290,11 @@ function BookSlotInner() {
   };
 
   const shouldShowSlot = (timeStr: string) => {
-    if (isSlotBooked(timeStr)) return isBookingStart(timeStr);
     if (selectedDate === "") return true;
-    return !isSlotClosedByTime(timeStr);
+    // Expired times are never shown, even if an old booking exists for them.
+    if (isSlotClosedByTime(timeStr)) return false;
+    if (isSlotBooked(timeStr)) return isBookingStart(timeStr);
+    return true;
   };
 
   const getSlotState = (timeStr: string) => {
