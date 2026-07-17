@@ -179,6 +179,7 @@ function BookSlotInner() {
   useEffect(() => {
     if (!turfId || !selectedDate) return;
 
+    setSlotsLoading(true);
     // Reset selected slots when switching days
     setSelectedStartTime(null);
     setSelectedEndTime(null);
@@ -276,6 +277,12 @@ function BookSlotInner() {
 
     // Once the slot start time has passed, treat it as closed.
     return slotStart.getTime() <= nowMs;
+  };
+
+  const shouldShowSlot = (timeStr: string) => {
+    if (isSlotBooked(timeStr)) return true;
+    if (selectedDate === "") return true;
+    return !isSlotClosedByTime(timeStr);
   };
 
   const getSlotState = (timeStr: string) => {
@@ -573,7 +580,7 @@ function BookSlotInner() {
                   <p className="text-sm text-zinc-500">No operating hours defined for this day.</p>
                 ) : (
                   <div className="grid grid-cols-3 gap-2.5 sm:grid-cols-4">
-                    {startTimes.map((time) => {
+                    {startTimes.filter(shouldShowSlot).map((time) => {
                       const slotState = getSlotState(time);
                       const isBooked = slotState === "BOOKED";
                       const isClosed = slotState === "CLOSED";
