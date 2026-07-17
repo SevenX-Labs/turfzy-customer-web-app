@@ -213,6 +213,36 @@ export default function TurfPage() {
             )}
           </div>
 
+          {/* Mobile Booking Card (Only visible on screens smaller than lg) */}
+          <div className="block lg:hidden rounded-3xl border border-zinc-200 bg-white p-6 shadow-md">
+            <div className="space-y-1">
+              <span className="text-sm text-zinc-500">Starting from</span>
+              <p className="text-3xl font-black text-zinc-900">
+                ₹{startingPrice}
+                <span className="text-sm font-normal text-zinc-500"> / hour</span>
+              </p>
+            </div>
+            
+            <div className="mt-6 space-y-4">
+              <div className="rounded-2xl bg-zinc-50 p-4 space-y-3">
+                <div className="flex justify-between text-xs text-zinc-600">
+                  <span>📅 Instant confirmation</span>
+                  <span className="font-bold text-green-700">⚡ Available</span>
+                </div>
+                <div className="flex justify-between text-xs text-zinc-600">
+                  <span>⚽ Size</span>
+                  <span className="font-bold">{turf.turfSize}</span>
+                </div>
+              </div>
+
+              <Link href={`/book-slot?turfId=${turf.id}`} className="block">
+                <Button className="w-full py-4 text-base font-black shadow-lg shadow-lime-300/40">
+                  Book Slot
+                </Button>
+              </Link>
+            </div>
+          </div>
+
           <hr className="border-zinc-200" />
 
           {/* Description */}
@@ -378,7 +408,7 @@ export default function TurfPage() {
         </article>
 
         {/* Right Column: Sticky Booking Widget */}
-        <aside className="h-fit lg:sticky lg:top-24">
+        <aside className="hidden lg:block h-fit lg:sticky lg:top-24">
           <div className="rounded-3xl border border-zinc-200 bg-white p-6 shadow-xl">
             <div className="space-y-1">
               <span className="text-sm text-zinc-500">Starting from</span>
