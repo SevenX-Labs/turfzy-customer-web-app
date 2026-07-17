@@ -5,6 +5,30 @@ import { useEffect, useState } from "react";
 import { turfService } from "@/services";
 import type { Turf } from "@/types/domain";
 import { Button } from "@/components/ui";
+import {
+  MapPin,
+  Clock,
+  Calendar,
+  Zap,
+  Lightbulb,
+  Car,
+  ShowerHead,
+  Shirt,
+  Droplet,
+  Sofa,
+  Coffee,
+  ShieldCheck,
+  Lock,
+  Star,
+  Ruler,
+  AlertTriangle,
+  Info,
+  Banknote,
+  Ticket,
+  Sun,
+  Moon,
+  Phone
+} from "lucide-react";
 
 function TurfDetailSkeleton() {
   return (
@@ -74,12 +98,12 @@ export default function TurfPage() {
     return (
       <div className="mx-auto grid min-h-[60vh] max-w-lg place-items-center p-6 text-center">
         <div>
-          <p className="text-4xl">⚠️</p>
+          <AlertTriangle className="h-12 w-12 text-red-500 mx-auto animate-bounce" />
           <h1 className="mt-4 text-2xl font-black">Turf details unavailable</h1>
           <p className="mt-2 text-sm leading-6 text-zinc-500">{error}</p>
           <button
             onClick={() => window.location.reload()}
-            className="mt-6 rounded-xl bg-lime-400 px-5 py-3 text-sm font-bold text-zinc-950"
+            className="mt-6 rounded-xl bg-lime-400 px-5 py-3 text-sm font-bold text-zinc-950 hover:bg-lime-300 transition"
           >
             Try again
           </button>
@@ -90,6 +114,7 @@ export default function TurfPage() {
 
   if (!turf) return <TurfDetailSkeleton />;
 
+  // Timings conversion helper
   const formatTime = (timeStr?: string) => {
     if (!timeStr) return "";
     const [hoursStr, minutesStr] = timeStr.split(":");
@@ -101,21 +126,21 @@ export default function TurfPage() {
 
   // Amenities mapping
   const amenitiesList = [
-    turf.floodLights && { label: "Floodlights", icon: "💡" },
-    turf.parking && { label: "Parking Available", icon: "🚗" },
-    turf.washroom && { label: "Washrooms", icon: "🧼" },
-    turf.changingRoom && { label: "Changing Rooms", icon: "👕" },
-    turf.drinkingWater && { label: "Drinking Water", icon: "🥤" },
-    turf.seatingArea && { label: "Seating Area", icon: "🪑" },
-    turf.cafeteria && { label: "Cafeteria", icon: "☕" },
-  ].filter(Boolean) as { label: string; icon: string }[];
+    turf.floodLights && { label: "Floodlights", icon: <Lightbulb className="h-5 w-5 text-lime-600" /> },
+    turf.parking && { label: "Parking Available", icon: <Car className="h-5 w-5 text-lime-600" /> },
+    turf.washroom && { label: "Washrooms", icon: <ShowerHead className="h-5 w-5 text-lime-600" /> },
+    turf.changingRoom && { label: "Changing Rooms", icon: <Shirt className="h-5 w-5 text-lime-600" /> },
+    turf.drinkingWater && { label: "Drinking Water", icon: <Droplet className="h-5 w-5 text-lime-600" /> },
+    turf.seatingArea && { label: "Seating Area", icon: <Sofa className="h-5 w-5 text-lime-600" /> },
+    turf.cafeteria && { label: "Cafeteria", icon: <Coffee className="h-5 w-5 text-lime-600" /> },
+  ].filter(Boolean) as { label: string; icon: React.ReactNode }[];
 
   const finalAmenities = amenitiesList.length
     ? amenitiesList
     : [
-        { label: "Verified Venue", icon: "🛡️" },
-        { label: "Secure Booking", icon: "🔒" },
-        { label: "Sport-ready Ground", icon: "🌱" },
+        { label: "Verified Venue", icon: <ShieldCheck className="h-5 w-5 text-lime-600" /> },
+        { label: "Secure Booking", icon: <Lock className="h-5 w-5 text-lime-600" /> },
+        { label: "Sport-ready Ground", icon: <Zap className="h-5 w-5 text-lime-600" /> },
       ];
 
   // Pricing helper
@@ -144,9 +169,10 @@ export default function TurfPage() {
     return (
       <div className="flex gap-0.5 text-amber-500">
         {Array.from({ length: 5 }).map((_, i) => (
-          <span key={i} className="text-lg">
-            {i < filled ? "★" : "☆"}
-          </span>
+          <Star
+            key={i}
+            className={`h-4 w-4 ${i < filled ? "fill-amber-500 text-amber-500" : "text-zinc-300"}`}
+          />
         ))}
       </div>
     );
@@ -195,7 +221,8 @@ export default function TurfPage() {
               </span>
               {turf.rating !== undefined && turf.rating > 0 && (
                 <span className="flex items-center gap-1 text-sm font-bold text-amber-700">
-                  ★ {turf.rating.toFixed(1)}
+                  <Star className="h-4 w-4 fill-amber-500 text-amber-500" />
+                  <span>{turf.rating.toFixed(1)}</span>
                   {turf.reviewCount !== undefined && turf.reviewCount > 0 && (
                     <span className="text-zinc-400 font-normal">({turf.reviewCount} reviews)</span>
                   )}
@@ -203,14 +230,19 @@ export default function TurfPage() {
               )}
             </div>
             <h1 className="mt-3 text-4xl font-black tracking-tight text-zinc-900">{turf.name}</h1>
-            <p className="mt-2 text-sm text-zinc-500">
-              📍 {[turf.address, turf.city, turf.pincode].filter(Boolean).join(", ")}
-            </p>
-            {turf.openTime && turf.closeTime && (
-              <p className="mt-2 text-sm font-semibold text-zinc-700">
-                🕒 Timings: {formatTime(turf.openTime)} - {formatTime(turf.closeTime)}
+            
+            <div className="mt-3 space-y-2">
+              <p className="flex items-center gap-2 text-sm text-zinc-500">
+                <MapPin className="h-4 w-4 text-zinc-400 flex-shrink-0" />
+                <span>{[turf.address, turf.city, turf.pincode].filter(Boolean).join(", ")}</span>
               </p>
-            )}
+              {turf.openTime && turf.closeTime && (
+                <p className="flex items-center gap-2 text-sm font-semibold text-zinc-700">
+                  <Clock className="h-4 w-4 text-zinc-400 flex-shrink-0" />
+                  <span>Timings: {formatTime(turf.openTime)} - {formatTime(turf.closeTime)}</span>
+                </p>
+              )}
+            </div>
           </div>
 
           {/* Mobile Booking Card (Only visible on screens smaller than lg) */}
@@ -225,12 +257,21 @@ export default function TurfPage() {
             
             <div className="mt-6 space-y-4">
               <div className="rounded-2xl bg-zinc-50 p-4 space-y-3">
-                <div className="flex justify-between text-xs text-zinc-600">
-                  <span>📅 Instant confirmation</span>
-                  <span className="font-bold text-green-700">⚡ Available</span>
+                <div className="flex justify-between items-center text-xs text-zinc-600">
+                  <span className="flex items-center gap-1.5">
+                    <Calendar className="h-3.5 w-3.5 text-zinc-400" />
+                    Instant confirmation
+                  </span>
+                  <span className="flex items-center gap-1 font-bold text-green-700">
+                    <Zap className="h-3.5 w-3.5 text-green-600 fill-green-600" />
+                    Available
+                  </span>
                 </div>
-                <div className="flex justify-between text-xs text-zinc-600">
-                  <span>⚽ Size</span>
+                <div className="flex justify-between items-center text-xs text-zinc-600">
+                  <span className="flex items-center gap-1.5">
+                    <Ruler className="h-3.5 w-3.5 text-zinc-400" />
+                    Size
+                  </span>
                   <span className="font-bold">{turf.turfSize}</span>
                 </div>
               </div>
@@ -262,12 +303,18 @@ export default function TurfPage() {
               <div className="rounded-2xl border border-zinc-200 bg-zinc-50 p-5">
                 <p className="font-bold text-zinc-800">Weekdays (Mon - Fri)</p>
                 <div className="mt-3 space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-zinc-500">☀️ Day Slot (Before Sunset)</span>
+                  <div className="flex justify-between items-center text-sm">
+                    <span className="flex items-center gap-1.5 text-zinc-500">
+                      <Sun className="h-4 w-4 text-zinc-400" />
+                      Day Slot (Before Sunset)
+                    </span>
                     <span className="font-bold">₹{prices.weekdayDay}/hr</span>
                   </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-zinc-500">🌙 Night Slot (After Sunset)</span>
+                  <div className="flex justify-between items-center text-sm">
+                    <span className="flex items-center gap-1.5 text-zinc-500">
+                      <Moon className="h-4 w-4 text-zinc-400" />
+                      Night Slot (After Sunset)
+                    </span>
                     <span className="font-bold">₹{prices.weekdayNight}/hr</span>
                   </div>
                 </div>
@@ -275,12 +322,18 @@ export default function TurfPage() {
               <div className="rounded-2xl border border-zinc-200 bg-zinc-50 p-5">
                 <p className="font-bold text-zinc-800">Weekends (Sat - Sun)</p>
                 <div className="mt-3 space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-zinc-500">☀️ Day Slot (Before Sunset)</span>
+                  <div className="flex justify-between items-center text-sm">
+                    <span className="flex items-center gap-1.5 text-zinc-500">
+                      <Sun className="h-4 w-4 text-zinc-400" />
+                      Day Slot (Before Sunset)
+                    </span>
                     <span className="font-bold">₹{prices.weekendDay}/hr</span>
                   </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-zinc-500">🌙 Night Slot (After Sunset)</span>
+                  <div className="flex justify-between items-center text-sm">
+                    <span className="flex items-center gap-1.5 text-zinc-500">
+                      <Moon className="h-4 w-4 text-zinc-400" />
+                      Night Slot (After Sunset)
+                    </span>
                     <span className="font-bold">₹{prices.weekendNight}/hr</span>
                   </div>
                 </div>
@@ -317,7 +370,7 @@ export default function TurfPage() {
                   key={amenity.label}
                   className="flex items-center gap-3 rounded-2xl border border-zinc-200 px-4 py-3 bg-white"
                 >
-                  <span className="text-xl">{amenity.icon}</span>
+                  <span className="flex-shrink-0">{amenity.icon}</span>
                   <span className="text-sm font-semibold text-zinc-700">{amenity.label}</span>
                 </div>
               ))}
@@ -368,9 +421,18 @@ export default function TurfPage() {
               </div>
 
               <div className="rounded-2xl bg-zinc-50 p-4 text-xs text-zinc-500 space-y-2 leading-5">
-                <p>💡 <strong>Pending Approval:</strong> If a booking is still pending owner approval, it will receive a <strong>100% refund</strong> upon cancellation.</p>
-                <p>💵 <strong>Full Cash Bookings:</strong> Cancellations made less than 24 hours before the slot are marked as late cancellations. Getting 3 late cancellations within 90 days will temporarily disable the Full Cash option for 30 days.</p>
-                <p>🎟️ <em>Please note: Platform fees are non-refundable.</em></p>
+                <p className="flex items-start gap-1.5">
+                  <Info className="h-3.5 w-3.5 text-zinc-400 mt-0.5 flex-shrink-0" />
+                  <span><strong>Pending Approval:</strong> If a booking is still pending owner approval, it will receive a <strong>100% refund</strong> upon cancellation.</span>
+                </p>
+                <p className="flex items-start gap-1.5">
+                  <Banknote className="h-3.5 w-3.5 text-zinc-400 mt-0.5 flex-shrink-0" />
+                  <span><strong>Full Cash Bookings:</strong> Cancellations made less than 24 hours before the slot are marked as late cancellations. Getting 3 late cancellations within 90 days will temporarily disable the Full Cash option for 30 days.</span>
+                </p>
+                <p className="flex items-start gap-1.5">
+                  <Ticket className="h-3.5 w-3.5 text-zinc-400 mt-0.5 flex-shrink-0" />
+                  <span><em>Please note: Platform fees are non-refundable.</em></span>
+                </p>
               </div>
             </div>
           </div>
@@ -385,7 +447,10 @@ export default function TurfPage() {
                 </div>
                 <div>
                   <p className="font-bold text-zinc-900">{turf.owner.name}</p>
-                  <p className="text-sm text-zinc-500">📞 {turf.owner.contactNumber}</p>
+                  <p className="text-sm text-zinc-500 flex items-center gap-1.5 mt-1">
+                    <Phone className="h-3.5 w-3.5 text-zinc-400" />
+                    <span>{turf.owner.contactNumber}</span>
+                  </p>
                 </div>
               </div>
             </div>
@@ -436,12 +501,21 @@ export default function TurfPage() {
             
             <div className="mt-6 space-y-4">
               <div className="rounded-2xl bg-zinc-50 p-4 space-y-3">
-                <div className="flex justify-between text-xs text-zinc-600">
-                  <span>📅 Instant confirmation</span>
-                  <span className="font-bold text-green-700">⚡ Available</span>
+                <div className="flex justify-between items-center text-xs text-zinc-600">
+                  <span className="flex items-center gap-1.5">
+                    <Calendar className="h-3.5 w-3.5 text-zinc-400" />
+                    Instant confirmation
+                  </span>
+                  <span className="flex items-center gap-1 font-bold text-green-700">
+                    <Zap className="h-3.5 w-3.5 text-green-600 fill-green-600" />
+                    Available
+                  </span>
                 </div>
-                <div className="flex justify-between text-xs text-zinc-600">
-                  <span>⚽ Size</span>
+                <div className="flex justify-between items-center text-xs text-zinc-600">
+                  <span className="flex items-center gap-1.5">
+                    <Ruler className="h-3.5 w-3.5 text-zinc-400" />
+                    Size
+                  </span>
                   <span className="font-bold">{turf.turfSize}</span>
                 </div>
               </div>
