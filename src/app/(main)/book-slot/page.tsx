@@ -118,6 +118,12 @@ function BookSlotInner() {
     return list;
   }
 
+  function toMinutes(timeStr: string) {
+    const [hours, minutes] = timeStr.split(":").map(Number);
+    if (Number.isNaN(hours) || Number.isNaN(minutes)) return 0;
+    return hours * 60 + minutes;
+  }
+
   // 1. Generate next 7 days & fetch initial turf details/slabs
   useEffect(() => {
     if (!turfId) {
@@ -252,7 +258,7 @@ function BookSlotInner() {
   const isSlotBooked = (timeStr: string) => {
     if (!availability?.bookedSlots) return false;
     return availability.bookedSlots.some(slot => {
-      return timeStr >= slot.startTime && timeStr < slot.endTime;
+      return toMinutes(timeStr) >= toMinutes(slot.startTime) && toMinutes(timeStr) < toMinutes(slot.endTime);
     });
   };
 
@@ -591,7 +597,7 @@ function BookSlotInner() {
                           <span className={`mt-1 block text-[10px] font-black uppercase tracking-wider ${
                             isBooked
                               ? "text-red-500"
-                              : isClosed
+                            : isClosed
                               ? "text-zinc-400"
                               : "text-lime-600"
                           }`}>
