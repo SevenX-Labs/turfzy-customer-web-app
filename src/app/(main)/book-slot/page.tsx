@@ -193,7 +193,7 @@ function BookSlotInner() {
   // 4. Default to first payment preference supported by the turf
   useEffect(() => {
     if (turf && step === "CHECKOUT") {
-      const prefs = (turf as any).paymentPreferences || ["FULL_ONLINE", "ADVANCE_PAYMENT", "FULL_CASH"];
+      const prefs = turf.paymentPreferences || ["FULL_ONLINE", "ADVANCE_PAYMENT", "FULL_CASH"];
       if (prefs.includes("FULL_ONLINE")) {
         setPaymentMethod("FULL_ONLINE");
       } else if (prefs.includes("ADVANCE_PAYMENT")) {
@@ -471,7 +471,7 @@ function BookSlotInner() {
   if (!turf) return null;
 
   // Retrieve payment preferences configured for this turf
-  const allowedPreferences = (turf as any).paymentPreferences || ["FULL_ONLINE", "ADVANCE_PAYMENT", "FULL_CASH"];
+  const allowedPreferences = turf.paymentPreferences || ["FULL_ONLINE", "ADVANCE_PAYMENT", "FULL_CASH"];
 
   return (
     <div className="mx-auto max-w-3xl p-4 pb-28 md:p-6 md:pb-32">

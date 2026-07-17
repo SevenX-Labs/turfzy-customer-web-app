@@ -31,6 +31,9 @@ export type Turf = {
   drinkingWater?: boolean;
   seatingArea?: boolean;
   cafeteria?: boolean;
+  paymentPreferences?: string[];
+  minSlotDurationMins?: number;
+  bookingApprovalType?: string;
   cancellationAllowedBeforeHours?: number;
   cancellationRefundPercentage?: number;
   owner?: {
