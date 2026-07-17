@@ -52,5 +52,5 @@ export type Turf = {
 export type BookingStatus = "PENDING" | "CONFIRMED" | "COMPLETED" | "CANCELLED" | "NO_SHOW";
 export type PaymentStatus = "PENDING" | "SUCCESS" | "FAILED" | "REFUNDED";
 export type PaymentType = "FULL_ONLINE" | "HALF_ONLINE_HALF_CASH" | "FULL_CASH";
-export type Booking = { id: string; displayId: string; turfId?: string; bookingDate: string; startTime: string; endTime: string; durationMins?: number; bookingStatus: BookingStatus; paymentStatus: PaymentStatus; paymentType?: PaymentType; amount: number; depositAmount?: number; amountToPay: number; remainingAmount?: number; checkInPin?: string | null; qrCode?: string | null; turf?: Turf };
+export type Booking = { id: string; displayId: string; turfId?: string; bookingDate: string; startTime: string; endTime: string; durationMins?: number; bookingStatus: BookingStatus; paymentStatus: PaymentStatus; paymentType?: PaymentType; amount: number; depositAmount?: number; amountToPay: number; remainingAmount?: number; groundCharge?: number; platformFee?: number; remainingAtTurf?: number; onlinePayable?: number; advanceAmount?: number; checkInPin?: string | null; qrCode?: string | null; turf?: Turf };
 export type Notification = { id: string; title: string; body: string; type?: string; isRead: boolean; createdAt: string };
