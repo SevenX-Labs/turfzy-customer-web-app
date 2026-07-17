@@ -253,6 +253,28 @@ function BookSlotInner() {
     });
   };
 
+  const isSlotClosedByTime = (timeStr: string) => {
+    if (!selectedDate) return false;
+    const [slotHour, slotMinute] = timeStr.split(":").map(Number);
+    const slotStart = new Date(selectedDate);
+    slotStart.setHours(slotHour, slotMinute, 0, 0);
+
+    const today = new Date();
+    const localToday = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
+    const isToday = selectedDate === localToday;
+
+    if (!isToday) return false;
+
+    // Once the slot start time has passed, treat it as closed.
+    return slotStart.getTime() <= Date.now();
+  };
+
+  const getSlotState = (timeStr: string) => {
+    if (isSlotBooked(timeStr)) return "BOOKED";
+    if (isSlotClosedByTime(timeStr)) return "CLOSED";
+    return "AVAILABLE";
+  };
+
   // --- Duration & Price Computations ---
   const getDurationInMinutes = () => {
     if (!selectedStartTime || !selectedEndTime) return 0;
@@ -543,22 +565,35 @@ function BookSlotInner() {
                 ) : (
                   <div className="grid grid-cols-3 gap-2.5 sm:grid-cols-4">
                     {startTimes.map((time) => {
-                      const isBooked = isSlotBooked(time);
+                      const slotState = getSlotState(time);
+                      const isBooked = slotState === "BOOKED";
+                      const isClosed = slotState === "CLOSED";
                       const isSelected = selectedStartTime === time;
                       return (
                         <button
                           key={time}
-                          disabled={isBooked}
+                          disabled={isBooked || isClosed}
                           onClick={() => setSelectedStartTime(time)}
                           className={`py-3 px-4 rounded-2xl border text-center text-sm transition-all ${
                             isSelected
                               ? "bg-lime-500 border-lime-500 text-zinc-950 font-black shadow-md shadow-lime-300/30"
                               : isBooked
-                              ? "bg-zinc-100 border-zinc-100 text-zinc-300 cursor-not-allowed"
+                              ? "bg-red-50 border-red-200 text-red-700 cursor-not-allowed"
+                              : isClosed
+                              ? "bg-zinc-100 border-zinc-200 text-zinc-400 cursor-not-allowed"
                               : "bg-white border-zinc-200 text-zinc-800 font-bold hover:border-zinc-300"
                           }`}
                         >
-                          {time}
+                          <span className="block leading-none">{time}</span>
+                          <span className={`mt-1 block text-[10px] font-black uppercase tracking-wider ${
+                            isBooked
+                              ? "text-red-500"
+                              : isClosed
+                              ? "text-zinc-400"
+                              : "text-lime-600"
+                          }`}>
+                            {isBooked ? "Booked" : isClosed ? "Closed" : "Open"}
+                          </span>
                         </button>
                       );
                     })}
