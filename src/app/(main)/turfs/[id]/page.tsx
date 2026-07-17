@@ -90,7 +90,6 @@ export default function TurfPage() {
 
   if (!turf) return <TurfDetailSkeleton />;
 
-  // Timings conversion helper
   const formatTime = (timeStr?: string) => {
     if (!timeStr) return "";
     const [hoursStr, minutesStr] = timeStr.split(":");
