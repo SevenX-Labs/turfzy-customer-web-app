@@ -3,7 +3,6 @@
 import { useSearchParams, useRouter } from "next/navigation";
 import { useEffect, useState, Suspense } from "react";
 import { bookingService, turfService, profileService } from "@/services";
-import { Button } from "@/components/ui";
 import type { PaymentType, Turf } from "@/types/domain";
 import {
   ArrowLeft,
@@ -27,6 +26,18 @@ type PlatformFeeSlab = {
   isActive: boolean;
 };
 
+type AvailabilityResponse = {
+  openTime: string;
+  closeTime: string;
+  bookedSlots: { startTime: string; endTime: string; isExpired?: boolean }[];
+  pricing: {
+    dayPrice: number;
+    nightPrice: number;
+    nightStartsAt: string;
+    isWeekend: boolean;
+  };
+};
+
 // Main interactive booking component
 function BookSlotInner() {
   const params = useSearchParams();
@@ -41,17 +52,7 @@ function BookSlotInner() {
   // Date and slot selection states
   const [dates, setDates] = useState<{ isoString: string; dayName: string; dayNum: number; monthName: string }[]>([]);
   const [selectedDate, setSelectedDate] = useState("");
-  const [availability, setAvailability] = useState<{
-    openTime: string;
-    closeTime: string;
-    bookedSlots: { startTime: string; endTime: string; isExpired?: boolean }[];
-    pricing: {
-      dayPrice: number;
-      nightPrice: number;
-      nightStartsAt: string;
-      isWeekend: boolean;
-    };
-  } | null>(null);
+  const [availability, setAvailability] = useState<AvailabilityResponse | null>(null);
   
   const [startTimes, setStartTimes] = useState<string[]>([]);
   const [endTimes, setEndTimes] = useState<string[]>([]);
@@ -70,6 +71,52 @@ function BookSlotInner() {
   const [slotsLoading, setSlotsLoading] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
+  const [nowMs, setNowMs] = useState(() => Date.now());
+
+  useEffect(() => {
+    const timer = window.setInterval(() => setNowMs(Date.now()), 60000);
+    return () => window.clearInterval(timer);
+  }, []);
+
+  // --- Utility functions for hourly slot generation ---
+  function generateStartTimes(open: string, close: string) {
+    const list: string[] = [];
+    const [startH] = open.split(":").map(Number);
+    const [endH] = close.split(":").map(Number);
+
+    if (open === close) {
+      for (let h = 0; h < 24; h++) {
+        list.push(`${h.toString().padStart(2, "0")}:00`);
+      }
+      return list;
+    }
+
+    let current = startH;
+    const target = close < open ? endH + 24 : endH;
+
+    while (current < target) {
+      const h = current % 24;
+      list.push(`${h.toString().padStart(2, "0")}:00`);
+      current++;
+    }
+    return list;
+  }
+
+  function generateEndTimes(startStr: string, limitStr: string) {
+    const list: string[] = [];
+    const [startH] = startStr.split(":").map(Number);
+    const [limitH] = limitStr.split(":").map(Number);
+
+    const target = limitStr < startStr ? limitH + 24 : limitH;
+    let current = startH + 1;
+
+    while (current <= target) {
+      const h = current % 24;
+      list.push(`${h.toString().padStart(2, "0")}:00`);
+      current++;
+    }
+    return list;
+  }
 
   // 1. Generate next 7 days & fetch initial turf details/slabs
   useEffect(() => {
@@ -126,23 +173,22 @@ function BookSlotInner() {
   useEffect(() => {
     if (!turfId || !selectedDate) return;
 
-    setSlotsLoading(true);
     // Reset selected slots when switching days
     setSelectedStartTime(null);
     setSelectedEndTime(null);
 
     bookingService.availability(turfId, selectedDate)
       .then((res) => {
-        const data = res.data;
+        const data = res.data as AvailabilityResponse;
         setAvailability({
           openTime: data.openTime,
           closeTime: data.closeTime,
           bookedSlots: data.bookedSlots || [],
           pricing: {
-            dayPrice: Number((data.pricing as any)?.dayPrice ?? 0),
-            nightPrice: Number((data.pricing as any)?.nightPrice ?? 0),
-            nightStartsAt: String((data.pricing as any)?.nightStartsAt ?? "18:00"),
-            isWeekend: Boolean((data.pricing as any)?.isWeekend ?? false)
+            dayPrice: Number(data.pricing?.dayPrice ?? 0),
+            nightPrice: Number(data.pricing?.nightPrice ?? 0),
+            nightStartsAt: String(data.pricing?.nightStartsAt ?? "18:00"),
+            isWeekend: Boolean(data.pricing?.isWeekend ?? false)
           }
         });
         
@@ -168,9 +214,8 @@ function BookSlotInner() {
       return;
     }
 
-    const open = availability.openTime || "06:00";
     const close = availability.closeTime || "23:00";
-    
+
     // Find the first booked/disabled slot that starts AFTER the selected start time
     const futureBookings = availability.bookedSlots
       .filter(s => s.startTime > selectedStartTime)
@@ -204,48 +249,6 @@ function BookSlotInner() {
     }
   }, [turf, step]);
 
-  // --- Utility functions for hourly slot generation ---
-  const generateStartTimes = (open: string, close: string) => {
-    const list: string[] = [];
-    let [startH] = open.split(":").map(Number);
-    let [endH] = close.split(":").map(Number);
-
-    if (open === close) {
-      // 24 Hours
-      for (let h = 0; h < 24; h++) {
-        list.push(`${h.toString().padStart(2, "0")}:00`);
-      }
-      return list;
-    }
-
-    let current = startH;
-    const target = close < open ? endH + 24 : endH;
-
-    // Last start slot starts 1 hour before closing
-    while (current < target) {
-      const h = current % 24;
-      list.push(`${h.toString().padStart(2, "0")}:00`);
-      current++;
-    }
-    return list;
-  };
-
-  const generateEndTimes = (startStr: string, limitStr: string) => {
-    const list: string[] = [];
-    let [startH] = startStr.split(":").map(Number);
-    let [limitH] = limitStr.split(":").map(Number);
-
-    const target = limitStr < startStr ? limitH + 24 : limitH;
-    let current = startH + 1;
-
-    while (current <= target) {
-      const h = current % 24;
-      list.push(`${h.toString().padStart(2, "0")}:00`);
-      current++;
-    }
-    return list;
-  };
-
   const isSlotBooked = (timeStr: string) => {
     if (!availability?.bookedSlots) return false;
     return availability.bookedSlots.some(slot => {
@@ -266,7 +269,7 @@ function BookSlotInner() {
     if (!isToday) return false;
 
     // Once the slot start time has passed, treat it as closed.
-    return slotStart.getTime() <= Date.now();
+    return slotStart.getTime() <= nowMs;
   };
 
   const getSlotState = (timeStr: string) => {
@@ -424,7 +427,7 @@ function BookSlotInner() {
         theme: {
           color: "#84cc16"
         },
-        handler: async function (response: any) {
+        handler: async function (response: { razorpay_order_id: string; razorpay_payment_id: string; razorpay_signature: string }) {
           try {
             await bookingService.confirmPayment(booking.id, {
               razorpayOrderId: response.razorpay_order_id,
@@ -432,8 +435,8 @@ function BookSlotInner() {
               razorpaySignature: response.razorpay_signature
             });
             router.push(`/booking-success?id=${booking.id}`);
-          } catch (confirmError: any) {
-            setError(confirmError.message ?? "Payment was successful, but confirmation failed. Please contact support.");
+          } catch (confirmError: unknown) {
+            setError(confirmError instanceof Error ? confirmError.message : "Payment was successful, but confirmation failed. Please contact support.");
             setBusy(false);
           }
         },
@@ -446,10 +449,10 @@ function BookSlotInner() {
         }
       };
 
-      const rzp = new (window as any).Razorpay(options);
+      const rzp = new (window as Window & { Razorpay: new (options: typeof options) => { open: () => void } }).Razorpay(options);
       rzp.open();
-    } catch (caughtError: any) {
-      setError(caughtError.message ?? "An error occurred while creating booking.");
+    } catch (caughtError: unknown) {
+      setError(caughtError instanceof Error ? caughtError.message : "An error occurred while creating booking.");
       setBusy(false);
     }
   };

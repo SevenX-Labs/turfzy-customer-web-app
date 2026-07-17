@@ -37,13 +37,11 @@ export default function BookingsPage() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    setLoading(true);
     bookingService
       .list()
-      .then((res) => setItems(normalize(res as any)))
-      .catch((e: any) => setError(e.message ?? "Failed to load bookings"))
+      .then((res) => setItems(normalize(res as Booking[] | { data: Booking[] })))
+      .catch((e: unknown) => setError(e instanceof Error ? e.message : "Failed to load bookings"))
       .finally(() => setLoading(false));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
