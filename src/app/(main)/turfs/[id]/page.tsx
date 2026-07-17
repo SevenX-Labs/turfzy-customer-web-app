@@ -342,22 +342,38 @@ export default function TurfPage() {
           <hr className="border-zinc-200" />
 
           {/* Cancellation Policy */}
-          {turf.cancellationAllowedBeforeHours !== undefined && (
-            <div>
-              <h2 className="text-xl font-black text-zinc-900">Cancellation Policy</h2>
-              <div className="mt-4 rounded-2xl border border-red-100 bg-red-50/50 p-5 text-sm leading-6 text-zinc-700">
-                ⚠️ Cancel at least{" "}
-                <strong className="text-zinc-900">
-                  {turf.cancellationAllowedBeforeHours} hours
-                </strong>{" "}
-                before your slot start time to receive a{" "}
-                <strong className="text-zinc-900">
-                  {turf.cancellationRefundPercentage}% refund
-                </strong>
-                . Late cancellations are non-refundable.
+          <div>
+            <h2 className="text-xl font-black text-zinc-900">Cancellation Policy</h2>
+            <div className="mt-4 rounded-3xl border border-zinc-200 bg-white p-6 shadow-sm space-y-4">
+              <p className="text-sm font-semibold text-zinc-600">
+                Refunds are calculated based on the time remaining before your slot start time:
+              </p>
+              
+              <div className="grid gap-3 sm:grid-cols-3">
+                <div className="rounded-2xl bg-green-50/70 border border-green-100 p-4">
+                  <p className="text-[10px] font-black uppercase tracking-wider text-green-700">72+ hours before</p>
+                  <p className="mt-1 text-lg font-black text-green-900">100% Refund</p>
+                  <p className="mt-0.5 text-xs text-zinc-500">of turf portion</p>
+                </div>
+                <div className="rounded-2xl bg-amber-50/70 border border-amber-100 p-4">
+                  <p className="text-[10px] font-black uppercase tracking-wider text-amber-700">24 to 72 hours before</p>
+                  <p className="mt-1 text-lg font-black text-amber-900">50% Refund</p>
+                  <p className="mt-0.5 text-xs text-zinc-500">of turf portion</p>
+                </div>
+                <div className="rounded-2xl bg-red-50/70 border border-red-100 p-4">
+                  <p className="text-[10px] font-black uppercase tracking-wider text-red-700">Less than 24 hours</p>
+                  <p className="mt-1 text-lg font-black text-red-900">No Refund</p>
+                  <p className="mt-0.5 text-xs text-zinc-500">late cancellation</p>
+                </div>
+              </div>
+
+              <div className="rounded-2xl bg-zinc-50 p-4 text-xs text-zinc-500 space-y-2 leading-5">
+                <p>💡 <strong>Pending Approval:</strong> If a booking is still pending owner approval, it will receive a <strong>100% refund</strong> upon cancellation.</p>
+                <p>💵 <strong>Full Cash Bookings:</strong> Cancellations made less than 24 hours before the slot are marked as late cancellations. Getting 3 late cancellations within 90 days will temporarily disable the Full Cash option for 30 days.</p>
+                <p>🎟️ <em>Please note: Platform fees are non-refundable.</em></p>
               </div>
             </div>
-          )}
+          </div>
 
           {/* Owner details */}
           {turf.owner && (
