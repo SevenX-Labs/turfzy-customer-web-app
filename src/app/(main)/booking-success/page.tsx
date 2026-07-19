@@ -56,10 +56,36 @@ function BookingSuccessInner() {
     );
   }
 
+  const isPending = booking?.bookingStatus === "PENDING";
+
+  const theme = isPending
+    ? {
+        bg: "bg-amber-500",
+        bgHover: "hover:bg-amber-400",
+        shadow: "shadow-amber-300/40",
+        iconBg: "bg-amber-400",
+        iconBgHalf: "bg-amber-400/50",
+        textColor: "text-zinc-950",
+        labelColor: "text-amber-900/60",
+        borderDashed: "border-amber-400/60",
+        glowBg: "bg-amber-200/40",
+      }
+    : {
+        bg: "bg-lime-500",
+        bgHover: "hover:bg-lime-400",
+        shadow: "shadow-lime-300/40",
+        iconBg: "bg-lime-400",
+        iconBgHalf: "bg-lime-400/50",
+        textColor: "text-zinc-950",
+        labelColor: "text-lime-900/60",
+        borderDashed: "border-lime-400/60",
+        glowBg: "bg-lime-200/40",
+      };
+
   return (
     <div className="relative mx-auto min-h-screen max-w-lg px-5 pt-6 pb-10">
       {/* Background decoration */}
-      <div className="pointer-events-none absolute right-0 top-0 h-64 w-64 rounded-full bg-lime-200/40 blur-3xl" />
+      <div className={`pointer-events-none absolute right-0 top-0 h-64 w-64 rounded-full ${theme.glowBg} blur-3xl`} />
 
       {/* Close button */}
       <div className="flex justify-end relative z-10">
@@ -73,28 +99,44 @@ function BookingSuccessInner() {
 
       {/* Success Icon + Text */}
       <div className="relative z-10 mt-6 text-center">
-        <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-lime-400 shadow-lg shadow-lime-300/40">
-          <Check className="h-10 w-10 text-zinc-950 stroke-[3]" />
+        <div className={`mx-auto flex h-20 w-20 items-center justify-center rounded-full ${theme.iconBg} shadow-lg ${theme.shadow}`}>
+          {isPending ? (
+            <Clock className="h-10 w-10 text-zinc-950 stroke-[3]" />
+          ) : (
+            <Check className="h-10 w-10 text-zinc-950 stroke-[3]" />
+          )}
         </div>
         <h1 className="mt-6 text-3xl font-black tracking-tight text-zinc-900">
-          Booking<br />Confirmed!
+          {isPending ? (
+            <>
+              Booking<br />Requested!
+            </>
+          ) : (
+            <>
+              Booking<br />Confirmed!
+            </>
+          )}
         </h1>
-        <p className="mt-2 text-sm text-zinc-500">You&apos;re all set to play.</p>
+        <p className="mt-2 text-sm text-zinc-500">
+          {isPending
+            ? "Waiting for owner approval. You'll be notified once confirmed."
+            : "You're all set to play."}
+        </p>
       </div>
 
       {/* Ticket Card */}
       {booking ? (
         <div className="relative z-10 mt-8">
-          {/* Ticket top (lime green) */}
-          <div className="rounded-t-3xl bg-lime-500 px-6 pt-6 pb-8">
-            <p className="text-[10px] font-black uppercase tracking-wider text-lime-900/60">
+          {/* Ticket top */}
+          <div className={`rounded-t-3xl ${theme.bg} px-6 pt-6 pb-8`}>
+            <p className={`text-[10px] font-black uppercase tracking-wider ${theme.labelColor}`}>
               BOOKING ID
             </p>
             <div className="mt-1 flex items-center justify-between">
-              <h2 className="text-2xl font-black text-zinc-950">
+              <h2 className={`text-2xl font-black ${theme.textColor}`}>
                 #{booking.displayId}
               </h2>
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-lime-400/50">
+              <div className={`flex h-10 w-10 items-center justify-center rounded-full ${theme.iconBgHalf}`}>
                 <svg className="h-5 w-5 text-zinc-950/40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <circle cx="12" cy="12" r="10" />
                   <line x1="2" y1="12" x2="22" y2="12" />
@@ -105,28 +147,28 @@ function BookingSuccessInner() {
           </div>
 
           {/* Ticket tear line with circles */}
-          <div className="relative flex items-center bg-lime-500">
+          <div className={`relative flex items-center ${theme.bg}`}>
             <div className="absolute -left-3 h-6 w-6 rounded-full bg-zinc-50" />
-            <div className="w-full border-t-2 border-dashed border-lime-400/60" />
+            <div className={`w-full border-t-2 border-dashed ${theme.borderDashed}`} />
             <div className="absolute -right-3 h-6 w-6 rounded-full bg-zinc-50" />
           </div>
 
           {/* Ticket bottom (details) */}
-          <div className="rounded-b-3xl bg-lime-500 px-6 pt-4 pb-6 space-y-5">
-            <h3 className="text-xl font-black text-zinc-950">
+          <div className={`rounded-b-3xl ${theme.bg} px-6 pt-4 pb-6 space-y-5`}>
+            <h3 className={`text-xl font-black ${theme.textColor}`}>
               {booking.turf?.name ?? "Your Venue"}
             </h3>
 
             {/* Date */}
             <div className="flex items-center gap-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-lime-400/50">
+              <div className={`flex h-9 w-9 items-center justify-center rounded-full ${theme.iconBgHalf}`}>
                 <Calendar className="h-4 w-4 text-zinc-950/60" />
               </div>
               <div>
-                <p className="text-[10px] font-black uppercase tracking-wider text-lime-900/60">
+                <p className={`text-[10px] font-black uppercase tracking-wider ${theme.labelColor}`}>
                   DATE
                 </p>
-                <p className="text-sm font-black text-zinc-950">
+                <p className={`text-sm font-black ${theme.textColor}`}>
                   {formatDate(booking.bookingDate)}
                 </p>
               </div>
@@ -134,14 +176,14 @@ function BookingSuccessInner() {
 
             {/* Time Slot */}
             <div className="flex items-center gap-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-lime-400/50">
+              <div className={`flex h-9 w-9 items-center justify-center rounded-full ${theme.iconBgHalf}`}>
                 <Clock className="h-4 w-4 text-zinc-950/60" />
               </div>
               <div>
-                <p className="text-[10px] font-black uppercase tracking-wider text-lime-900/60">
+                <p className={`text-[10px] font-black uppercase tracking-wider ${theme.labelColor}`}>
                   TIME SLOT
                 </p>
-                <p className="text-sm font-black text-zinc-950">
+                <p className={`text-sm font-black ${theme.textColor}`}>
                   {booking.startTime} - {booking.endTime}
                 </p>
               </div>
@@ -149,14 +191,14 @@ function BookingSuccessInner() {
 
             {/* Location */}
             <div className="flex items-center gap-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-lime-400/50">
+              <div className={`flex h-9 w-9 items-center justify-center rounded-full ${theme.iconBgHalf}`}>
                 <MapPin className="h-4 w-4 text-zinc-950/60" />
               </div>
               <div>
-                <p className="text-[10px] font-black uppercase tracking-wider text-lime-900/60">
+                <p className={`text-[10px] font-black uppercase tracking-wider ${theme.labelColor}`}>
                   LOCATION
                 </p>
-                <p className="text-sm font-black text-zinc-950 truncate max-w-[220px]">
+                <p className={`text-sm font-black ${theme.textColor} truncate max-w-[220px]`}>
                   {[booking.turf?.address, booking.turf?.city].filter(Boolean).join(", ") || "Venue address"}
                 </p>
               </div>
@@ -172,13 +214,13 @@ function BookingSuccessInner() {
               </div>
             )}
 
-            <p className="text-3xl font-black text-zinc-950">₹{booking.amount}</p>
+            <p className={`text-3xl font-black ${theme.textColor}`}>₹{booking.amount}</p>
           </div>
         </div>
       ) : (
         /* Fallback if booking data didn't load */
-        <div className="relative z-10 mt-8 rounded-3xl bg-lime-500 p-8 text-center">
-          <p className="text-sm font-bold text-zinc-950/70">
+        <div className={`relative z-10 mt-8 rounded-3xl ${theme.bg} p-8 text-center`}>
+          <p className={`text-sm font-bold ${theme.textColor}/70`}>
             Your booking has been created successfully.
           </p>
         </div>
@@ -188,7 +230,7 @@ function BookingSuccessInner() {
       <div className="relative z-10 mt-6">
         <Link
           href={bookingId ? `/bookings/${bookingId}` : "/bookings"}
-          className="flex w-full items-center justify-center gap-2 rounded-2xl bg-lime-500 py-4 text-sm font-black text-zinc-950 shadow-lg shadow-lime-300/40 hover:bg-lime-400 transition"
+          className={`flex w-full items-center justify-center gap-2 rounded-2xl ${theme.bg} py-4 text-sm font-black ${theme.textColor} shadow-lg ${theme.shadow} ${theme.bgHover} transition`}
         >
           <span>View Booking Details</span>
           <ArrowRight className="h-4 w-4" />
