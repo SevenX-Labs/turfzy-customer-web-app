@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { bookingService, splitService } from "@/services";
 import type { Booking } from "@/types/domain";
 import { Spinner } from "@/components/ui";
+import { useToast } from "@/components/toast";
 import {
   ArrowLeft, Calendar, Clock, MapPin, Check, QrCode,
   RefreshCw, FileText, Users, Share2, Download, Loader2,
@@ -49,6 +50,8 @@ export default function BookingDetailPage() {
   const [splitError, setSplitError] = useState("");
   const [addingPlayer, setAddingPlayer] = useState(false);
 
+  const { toast } = useToast();
+
   useEffect(() => {
     bookingService.get(id).then((r) => setBooking(r.data)).catch((e) => setError(e.message ?? "Could not load booking."));
   }, [id]);
@@ -72,6 +75,7 @@ export default function BookingDetailPage() {
     try {
       await bookingService.cancel(id, "Cancelled from web app");
       setShowCancelModal(false);
+      toast("Booking Cancelled", "gamification_penalty", "-2 Points deducted due to cancellation.");
       router.push("/bookings");
     } catch (e: unknown) {
       setError((e as { message?: string }).message ?? "Could not cancel booking.");

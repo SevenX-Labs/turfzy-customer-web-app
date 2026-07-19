@@ -3,17 +3,19 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState, type ReactNode } from "react";
-import { authService, profileService } from "@/services";
+import { authService, profileService, notificationService } from "@/services";
 import { clearToken, getToken } from "@/lib/api";
 import type { UserProfile } from "@/types/domain";
 import { Brand } from "@/components/ui";
+import { ToastProvider, useToast } from "@/components/toast";
 
-type IconName = "home" | "explore" | "bookings" | "notifications" | "profile" | "settings" | "logout";
+type IconName = "home" | "explore" | "bookings" | "notifications" | "profile" | "settings" | "logout" | "leaderboard";
 
 const links: { label: string; href: string; icon: IconName }[] = [
   { label: "Home", href: "/home", icon: "home" },
   { label: "Explore", href: "/turfs", icon: "explore" },
   { label: "My bookings", href: "/bookings", icon: "bookings" },
+  { label: "Leaderboard", href: "/leaderboard", icon: "leaderboard" },
   { label: "Notifications", href: "/notifications", icon: "notifications" },
   { label: "Profile", href: "/profile", icon: "profile" },
   { label: "Settings", href: "/settings", icon: "settings" },
@@ -24,6 +26,7 @@ function NavIcon({ name }: { name: IconName }) {
   if (name === "home") return <svg {...common}><path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1Z" /><path d="M9 21v-6h6v6" /></svg>;
   if (name === "explore") return <svg {...common}><circle cx="12" cy="12" r="8.5" /><path d="m15.5 8.5-2.1 4.8-4.8 2.2 2.1-4.8Z" /></svg>;
   if (name === "bookings") return <svg {...common}><rect x="4" y="5" width="16" height="15" rx="2" /><path d="M8 3v4M16 3v4M4 10h16M8 14h3" /></svg>;
+  if (name === "leaderboard") return <svg {...common}><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6" /><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18" /><path d="M4 22h16" /><path d="M10 14.66V17c0 .55-.45 1-1 1H4v2h16v-2h-5c-.55 0-1-.45-1-1v-2.34" /><path d="M12 2a4 4 0 0 1 4 4v7a4 4 0 0 1-8 0V6a4 4 0 0 1 4-4Z" /></svg>;
   if (name === "notifications") return <svg {...common}><path d="M18 9a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4" /><circle cx="19" cy="5" r="2" fill="currentColor" stroke="none" /></svg>;
   if (name === "profile") return <svg {...common}><circle cx="12" cy="8" r="3.5" /><path d="M5 21c.7-4 3-6 7-6s6.3 2 7 6" /></svg>;
   if (name === "settings") return <svg {...common}><circle cx="12" cy="12" r="3" /><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1-2.1 2.1-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.5v.2h-3v-.2a1.7 1.7 0 0 0-1-1.5 1.7 1.7 0 0 0-1.9.3l-.1.1-2.1-2.1.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1H5.3v-3h.2a1.7 1.7 0 0 0 1.5-1 1.7 1.7 0 0 0-.3-1.9l-.1-.1 2.1-2.1.1.1a1.7 1.7 0 0 0 1.9.3 1.7 1.7 0 0 0 1-1.5v-.2h3v.2a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.9-.3l.1-.1 2.1 2.1-.1.1a1.7 1.7 0 0 0-.3 1.9 1.7 1.7 0 0 0 1.5 1h.2v3h-.2a1.7 1.7 0 0 0-1.5 1Z" /></svg>;
@@ -31,8 +34,17 @@ function NavIcon({ name }: { name: IconName }) {
 }
 
 export function AppShell({ children }: { children: ReactNode }) {
+  return (
+    <ToastProvider>
+      <AppShellContent>{children}</AppShellContent>
+    </ToastProvider>
+  );
+}
+
+function AppShellContent({ children }: { children: ReactNode }) {
   const path = usePathname();
   const router = useRouter();
+  const { toast } = useToast();
   const [ready, setReady] = useState(false);
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -45,6 +57,59 @@ export function AppShell({ children }: { children: ReactNode }) {
       profileService.get().then((response) => setProfile(response.data)).catch(() => setProfile(null));
     }
   }, [router]);
+
+  // Background listener for real-time notifications
+  useEffect(() => {
+    if (!ready || !profile) return;
+
+    const checkNotifications = async () => {
+      try {
+        const response = await notificationService.inbox(1, 20);
+        const notifications = response.data || [];
+        
+        // Find unread gamification notifications
+        const unreadGamification = notifications.filter(
+          (notif) => {
+            const hasUnread = !notif.isRead;
+            if (!hasUnread) return false;
+            
+            const type = notif.type || (notif.data as any)?.type;
+            return type === "GAMIFICATION_DECAY" || type === "GAMIFICATION_PENALTY" || type === "GAMIFICATION_UPDATE";
+          }
+        );
+
+        for (const notif of unreadGamification) {
+          let toastType: any = "info";
+          const type = notif.type || (notif.data as any)?.type;
+          
+          if (type === "GAMIFICATION_DECAY") {
+            toastType = "gamification_decay";
+          } else if (type === "GAMIFICATION_PENALTY") {
+            toastType = "gamification_penalty";
+          } else if (type === "GAMIFICATION_UPDATE") {
+            toastType = "gamification_success";
+          }
+
+          toast(notif.title, toastType, notif.body);
+
+          // Mark as read immediately on the server so we don't display it again
+          await notificationService.read(notif.id).catch(() => {});
+          
+          // Dispatch a custom event to notify components to reload stats
+          window.dispatchEvent(new CustomEvent("gamification-update", { detail: notif }));
+        }
+      } catch (err) {
+        console.error("Error polling notifications:", err);
+      }
+    };
+
+    // Run immediately
+    checkNotifications();
+
+    // Poll every 12 seconds
+    const interval = setInterval(checkNotifications, 12000);
+    return () => clearInterval(interval);
+  }, [ready, profile, toast]);
 
   const logout = async () => { try { await authService.logout(); } catch {} clearToken(); router.replace("/login"); };
   const confirmLogout = async () => { setLogoutDialogOpen(false); await logout(); };
