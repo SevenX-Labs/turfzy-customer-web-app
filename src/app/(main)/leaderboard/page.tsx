@@ -47,6 +47,7 @@ export default function LeaderboardPage() {
   const [leaderboardList, setLeaderboardList] = useState<any[]>([]);
   const [leaderboardLoading, setLeaderboardLoading] = useState(false);
   const [showPenaltyModal, setShowPenaltyModal] = useState(false);
+  const [showRulesModal, setShowRulesModal] = useState(false);
 
   const fetchOverallStats = useCallback(async (silent = false) => {
     if (!silent) setLoading(true);
@@ -233,26 +234,23 @@ export default function LeaderboardPage() {
             </div>
           </div>
 
-          {/* Gamification Rules Reference */}
-          <div className="rounded-3xl border border-zinc-200 bg-white p-5 shadow-sm space-y-4">
-            <h3 className="font-black text-zinc-900 text-sm flex items-center gap-2">
-              <Info className="h-4 w-4 text-lime-600" />
-              <span>How to Earn Points?</span>
-            </h3>
-            <ul className="text-xs text-zinc-600 space-y-2.5">
-              <li className="flex gap-2 leading-relaxed">
-                <span className="text-lime-600 font-bold">1.</span>
-                <span>Earn <strong className="text-zinc-800">+10 Points</strong> and <strong className="text-zinc-800">+1 Streak day</strong> on every completed booking. (Only 1 streak day increment per day).</span>
-              </li>
-              <li className="flex gap-2 leading-relaxed">
-                <span className="text-orange-600 font-bold">2.</span>
-                <span><strong>5-Day Grace Rule:</strong> You must play at least once every 5 days. After 5 days of inactivity, your points drop by 5 and streak drops by 1 progressively every 5 days.</span>
-              </li>
-              <li className="flex gap-2 leading-relaxed">
-                <span className="text-red-600 font-bold">3.</span>
-                <span>Cancelling a booking deducts <strong className="text-zinc-800">-2 Points</strong> as cancellation penalty. Missed games (No Show) deduct <strong className="text-zinc-800">-30 Points</strong>.</span>
-              </li>
-            </ul>
+          {/* Gamification Rules Link Banner */}
+          <div className="rounded-3xl border border-zinc-200 bg-white p-4.5 shadow-sm flex items-center justify-between transition hover:shadow-md">
+            <div className="flex items-center gap-3 min-w-0">
+              <div className="flex h-9 w-9 items-center justify-center rounded-2xl bg-lime-100 text-lime-700 flex-shrink-0">
+                <Info className="h-5 w-5" />
+              </div>
+              <div className="min-w-0">
+                <p className="text-sm font-black text-zinc-900">How to earn points?</p>
+                <p className="text-[10px] text-zinc-400 font-bold uppercase tracking-wider">Click here to see the guidelines</p>
+              </div>
+            </div>
+            <button
+              onClick={() => setShowRulesModal(true)}
+              className="text-xs font-black text-lime-600 hover:text-lime-700 hover:underline flex-shrink-0"
+            >
+              See Guidance
+            </button>
           </div>
         </section>
 
@@ -441,6 +439,56 @@ export default function LeaderboardPage() {
                 className="w-full sm:w-auto rounded-xl bg-zinc-950 px-5 py-2.5 text-sm font-bold text-white hover:bg-zinc-800 transition active:scale-95"
               >
                 Got it, let's play!
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* How to Earn Points Rules Modal */}
+      {showRulesModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
+          <div className="w-full max-w-md rounded-3xl bg-white p-6 shadow-2xl border border-zinc-200 animate-in zoom-in-95 duration-200">
+            <div className="flex items-center gap-3 text-lime-600">
+              <Trophy className="h-6 w-6" />
+              <h2 className="text-lg font-black text-zinc-900">How to Earn Points</h2>
+            </div>
+            
+            <div className="mt-4 space-y-4">
+              <p className="text-sm text-zinc-600 leading-relaxed">
+                Earn points, build streaks, and climb the Turfzy leaderboard by playing regularly!
+              </p>
+              
+              <div className="space-y-3">
+                <div className="rounded-2xl bg-lime-50/50 p-4 border border-lime-100 flex items-start gap-3">
+                  <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-lime-100 text-lime-700 text-xs font-bold flex-shrink-0">1</span>
+                  <div className="text-xs text-zinc-600 leading-relaxed">
+                    <strong className="text-zinc-800">Match Completion:</strong> Earn <strong className="text-lime-700">+10 Points</strong> and <strong className="text-lime-700">+1 Streak day</strong> on every completed booking. (Only 1 streak day increment per day).
+                  </div>
+                </div>
+
+                <div className="rounded-2xl bg-orange-50/50 p-4 border border-orange-100 flex items-start gap-3">
+                  <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-orange-100 text-orange-700 text-xs font-bold flex-shrink-0">2</span>
+                  <div className="text-xs text-zinc-600 leading-relaxed">
+                    <strong className="text-zinc-800">5-Day Grace Rule:</strong> You must play at least once every 5 days. After 5 days of inactivity, your points drop by 5 and streak drops by 1 progressively every 5 days.
+                  </div>
+                </div>
+
+                <div className="rounded-2xl bg-red-50/50 p-4 border border-red-100 flex items-start gap-3">
+                  <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-red-100 text-red-700 text-xs font-bold flex-shrink-0">3</span>
+                  <div className="text-xs text-zinc-600 leading-relaxed">
+                    <strong className="text-zinc-800">Penalties:</strong> Cancelling a booking deducts <strong className="text-red-700">-2 Points</strong>. Missing a game entirely (No Show) deducts <strong className="text-red-700">-30 Points</strong>.
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div className="mt-6 flex justify-end">
+              <button
+                onClick={() => setShowRulesModal(false)}
+                className="w-full sm:w-auto rounded-xl bg-zinc-950 px-5 py-2.5 text-sm font-bold text-white hover:bg-zinc-800 transition active:scale-95"
+              >
+                Close Guidance
               </button>
             </div>
           </div>
