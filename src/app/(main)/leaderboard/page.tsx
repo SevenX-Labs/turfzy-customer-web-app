@@ -52,9 +52,9 @@ export default function LeaderboardPage() {
     if (!silent) setLoading(true);
     try {
       const res = await gamificationService.overall();
-      const data = res.data as GamificationStats;
+      const data = (res && (res as any).data !== undefined ? (res as any).data : res) as GamificationStats;
       setStats(data);
-      if (data.inactivityPenaltyApplied && data.penaltyReason) {
+      if (data && data.inactivityPenaltyApplied && data.penaltyReason) {
         setShowPenaltyModal(true);
       }
     } catch (err: any) {
@@ -75,7 +75,8 @@ export default function LeaderboardPage() {
       } else {
         res = await gamificationService.leaderboardByHours();
       }
-      setLeaderboardList(res.data as any[]);
+      const list = (res && (res as any).data !== undefined ? (res as any).data : res) as any[];
+      setLeaderboardList(list || []);
     } catch (err: any) {
       toast("Error loading leaderboard", "error", err.message || "Failed to sort leaderboard.");
     } finally {
