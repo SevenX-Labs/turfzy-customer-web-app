@@ -423,7 +423,7 @@ export default function LeaderboardPage() {
                 <div className="flex items-start gap-2.5">
                   <span className="h-1.5 w-1.5 rounded-full bg-orange-500 mt-2 flex-shrink-0" />
                   <p className="text-xs text-orange-950 leading-relaxed">
-                    <strong>Progressive Decay:</strong> For every 5 consecutive days without completing a booking, your active streak decreases by 1 and your score decreases by 5 points.
+                    <strong>Progressive Decay:</strong> For every 5 consecutive days without completing a booking, your active streak decreases by 1. No points are deducted.
                   </p>
                 </div>
               </div>
@@ -470,14 +470,14 @@ export default function LeaderboardPage() {
                 <div className="rounded-2xl bg-orange-50/50 p-4 border border-orange-100 flex items-start gap-3">
                   <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-orange-100 text-orange-700 text-xs font-bold flex-shrink-0">2</span>
                   <div className="text-xs text-zinc-600 leading-relaxed">
-                    <strong className="text-zinc-800">5-Day Grace Rule:</strong> You must play at least once every 5 days. After 5 days of inactivity, your points drop by 5 and streak drops by 1 progressively every 5 days.
+                    <strong className="text-zinc-800">5-Day Grace Rule:</strong> You must play at least once every 5 days. After 5 days of inactivity, your active streak drops by 1 progressively every 5 days. No points are deducted.
                   </div>
                 </div>
 
                 <div className="rounded-2xl bg-red-50/50 p-4 border border-red-100 flex items-start gap-3">
                   <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-red-100 text-red-700 text-xs font-bold flex-shrink-0">3</span>
                   <div className="text-xs text-zinc-600 leading-relaxed">
-                    <strong className="text-zinc-800">Penalties:</strong> Cancelling a booking deducts <strong className="text-red-700">-2 Points</strong>. Missing a game entirely (No Show) deducts <strong className="text-red-700">-30 Points</strong>.
+                    <strong className="text-zinc-800">Penalties:</strong> Cancelling a booking deducts <strong className="text-red-700">-2 Points</strong>. Missing a game entirely (No Show) deducts <strong className="text-red-700">-5 Points</strong>.
                   </div>
                 </div>
               </div>
